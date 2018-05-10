@@ -17,12 +17,13 @@ import com.sun.istack.internal.NotNull;
  *
  */
 public class WAVLTree {
-	
-	private enum Operation{
-		FINISH,
-		PROMOTE,
-		ROTATION,
-		DOUBLE_ROTATION,
+
+	private enum Operation {
+		FINISH, PROMOTE, ROTATION, DOUBLE_ROTATION, DEMOTE
+	}
+
+	private enum SIDE {
+		LEFT, RIGHT, NONE
 	}
 
 	private WAVLNode root;
@@ -62,18 +63,17 @@ public class WAVLTree {
 	/**
 	 *
 	 * @param k
-	 * @return the node of the key,
-	 *  if the tree is not empty and the key isn't found return external node
+	 * @return the node of the key, if the tree is not empty and the key isn't found
+	 *         return external node
 	 */
 	private WAVLNode searchForNode(int k) {
 		WAVLNode node = root;
-		while (node != null)
-		{
-			if (k == node.getKey()) 
+		while (node != null) {
+			if (k == node.getKey())
 				break;
 			else if (node.getKey() == WAVLNode.EXTERNAL_NODE_RANK)
 				break;
-			else if (k < node.getKey()) 
+			else if (k < node.getKey())
 				node = node.getLeft();
 			else
 				node = node.getRight();
@@ -90,35 +90,47 @@ public class WAVLTree {
 	 * k already exists in the tree.
 	 */
 	public int insert(int k, String value) {
-		int rebalancing= 0;
+		int rebalancing = 0;
 		WAVLNode searchNode = searchForNode(k);
-		if (searchNode==null) {
-			//insert to root create root as leaf
+		if (searchNode == null) {
+			// insert to root create root as leaf
 			root = new WAVLNode(k, value);
 			return rebalancing;
-		}
-		else if(searchNode.isInnerNode())
-			//the key already exists
+		} else if (searchNode.isInnerNode())
+			// the key already exists
 			return -1;
-		
-		//now we have external node (key-1) in searchNode
+
+		// now we have external node (key-1) in searchNode
 		// create leaf
-		WAVLNode node = new WAVLNode(k,value);
+		WAVLNode node = new WAVLNode(k, value);
 		WAVLNode parent = searchNode.parent;
-		connectNodeToParent(k, node, parent);
 		
+		//		connectNodeToParent(k, node, parent);
+		if (!parent.isLeaf()) {
+			status = Operation.FINISH;
+		} else {
+			status = Operation.PROMOTE;
+		}
+		if (parent.key < k) {
+			parent.right = node;
+		} else {
+			parent.left = node;
+		}
+		parent.subTreeSize += 1;
+
 		while (status != Operation.FINISH) {
+			//remember to update the sub tree size;
 			++rebalancing;
 			switch (status) {
 			case PROMOTE:
 				node = promote(parent);
 				break;
 			case ROTATION:
-				//this is node x from the lecture
+				// this is node x from the lecture
 				node = singleRotation(node);
 				status = Operation.FINISH;
 			case DOUBLE_ROTATION:
-				//this is node x from the lecture
+				// this is node x from the lecture
 				node = doubleRotation(node);
 				status = Operation.FINISH;
 				break;
@@ -131,6 +143,7 @@ public class WAVLTree {
 
 	/**
 	 * Eyal
+	 * 
 	 * @param node
 	 * @return
 	 */
@@ -141,6 +154,7 @@ public class WAVLTree {
 
 	/**
 	 * eyal
+	 * 
 	 * @param node
 	 * @return
 	 */
@@ -150,31 +164,15 @@ public class WAVLTree {
 	}
 
 	/**
-	 * rimon
-	 * getting node x, need to promote and update next @Operation status by the different cases
-	 * You write the cases with new function
+	 * rimon getting node x, need to promote and update next @Operation status by
+	 * the different cases You write the cases with new function
+	 * 
 	 * @param parent
-	 * @return 
+	 * @return
 	 */
 	private WAVLNode promote(WAVLNode parent) {
 		return null;
-		
-	}
 
-	private void connectNodeToParent(int k, WAVLNode node, WAVLNode parent) {
-		if (!parent.isLeaf()) {
-			status = Operation.FINISH;
-		}
-		else {
-			status = Operation.PROMOTE;
-		}
-		if (parent.key < k) {
-			parent.right = node;
-		}
-		else {
-			parent.left = node;
-		}
-		parent.subTreeSize+=1;
 	}
 
 	/**
@@ -186,33 +184,107 @@ public class WAVLTree {
 	 * item with key k was not found in the tree.
 	 */
 	public int delete(int k) {
-		int rebalancing= 0;
+		int rebalancing = 0;
+		WAVLNode rebalanceNode = null;
+		WAVLNode parent = null;
+		SIDE sideOfChild;
+		SIDE sideToParent;
+		
 		WAVLNode searchNode = searchForNode(k);
-		if (searchNode==null) {
+		if (searchNode == null) {
 			return -1;
 		}
-	
+
+		parent = searchNode.parent;
+		if (parent.getLeft() == searchNode) {
+			sideToParent = SIDE.LEFT;
+		} else {
+			sideToParent = SIDE.RIGHT;
+		}
 		
-		while (status != Operation.FINISH) {
-			++rebalancing;
-			switch (status) {
-			case PROMOTE:
-				node = promote(parent);
+		// if is leaf
+		if (searchNode.isLeaf()) {
+			WAVLNode externalNode = WAVLNode.createExternalNode(parent);
+			switch (sideToParent) {
+			case LEFT:
+				parent.left = externalNode;
 				break;
-			case ROTATION:
-				//this is node x from the lecture
-				node = singleRotation(node);
-				status = Operation.FINISH;
-			case DOUBLE_ROTATION:
-				//this is node x from the lecture
-				node = doubleRotation(node);
-				status = Operation.FINISH;
+			case RIGHT:
+				parent.right = externalNode;
 				break;
 			default:
 				break;
 			}
+			parent.subTreeSize--;
+			if (parent.isLeaf()) {
+				parent.rank = 0;
+				rebalancing++;
+			}
+			rebalanceNode = parent;
 		}
+		// unary Node
+		else if ((sideOfChild = searchNode.isUnary()) != SIDE.NONE) {
+			parent.subTreeSize--;
+			if (sideOfChild == SIDE.LEFT) {
+				if(sideToParent==SIDE.LEFT) {
+					parent.left = searchNode.left;
+				}
+				else {
+					parent.right = searchNode.left;
+				}
+				searchNode.left.parent = parent;
+			}
+			else {
+				if(sideToParent==SIDE.LEFT) {
+					parent.left = searchNode.right;
+				}
+				else {
+					parent.right = searchNode.right;
+				}
+				searchNode.right.parent = parent;
+			}
+			rebalanceNode = parent;
+		}
+		// 2 children
+		else {
+			WAVLNode successor = getSuccessor(searchNode);
+			if(successor.parent.left==successor) {
+				successor.parent.left = WAVLNode.createExternalNode(successor.parent);
+			}
+			else {
+				successor.parent.right = WAVLNode.createExternalNode(successor.parent);
+			}
+			rebalanceNode = successor.parent;
+			rebalanceNode.subTreeSize--;
+			if (rebalanceNode.isLeaf()) {
+				rebalanceNode.rank=0;
+			}
+			//TODO what if tree size is 1 or 0
+			if (sideToParent==SIDE.LEFT) {
+				parent.left = successor;				
+			}
+			else {
+				parent.right = successor;
+			}
+			if (successor!=null) {
+				successor.left = searchNode.left;
+				successor.right = searchNode.right;
+				successor.subTreeSize = searchNode.subTreeSize-1;
+				successor.rank = searchNode.rank;
+				successor.parent = parent;
+			}
+		}
+		parent.subTreeSize -= 1;
+
+		searchNode = null;
+		//TODO delete before the subtreesize and rank --
+		rebalance(rebalanceNode);
 		return rebalancing;
+	}
+
+	private void rebalance(WAVLNode parent) {
+		// TODO Auto-generated method stub
+
 	}
 
 	/**
@@ -400,10 +472,14 @@ public class WAVLTree {
 			this.right = WAVLNode.createExternalNode(this);
 		}
 
-		public boolean isLeaf() {
-			if (this.left.key==-1 && this.right.key==-1)
-				return true;
-			return false;
+		public SIDE isUnary() {
+			if (this.left.key != -1 && this.right.key == -1) {
+				return SIDE.LEFT;
+			}
+			else if(this.left.key == -1 && this.right.key != -1)
+				return SIDE.RIGHT;
+			
+			return SIDE.NONE;
 		}
 
 		public WAVLNode(int key, String value, @NotNull WAVLNode left, @NotNull WAVLNode right) {
@@ -412,21 +488,30 @@ public class WAVLTree {
 			this.left = left;
 			this.right = right;
 			this.parent = null;
-			this.rank = Math.max(left.getRank(),right.getRank()) + 1;
+			this.rank = Math.max(left.getRank(), right.getRank()) + 1;
 			this.subTreeSize = left.getSubtreeSize() + right.getSubtreeSize() + 1;
 			this.left.setParent(this);
 			this.right.setParent(this);
 		}
 
-		private WAVLNode(int externalNodeRank) {
+		// external node
+		private WAVLNode() {
 			key = -1;
+			rank = EXTERNAL_NODE_RANK;
+			subTreeSize = 0;
+		}
+
+		public boolean isLeaf() {
+			if (this.left.key == -1 && this.right.key == -1)
+				return true;
+			return false;
 		}
 
 		/**
 		 * create external node with key = -1
 		 */
 		private static WAVLNode createExternalNode(WAVLNode parent) {
-			WAVLNode node = new WAVLNode(EXTERNAL_NODE_RANK);
+			WAVLNode node = new WAVLNode();
 			node.parent = parent;
 			node.rank = -1;
 			node.subTreeSize = 0;
