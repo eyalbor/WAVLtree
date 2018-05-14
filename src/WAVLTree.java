@@ -131,16 +131,18 @@ public class WAVLTree {
 			// between n to n.parent
 			if ((side = checkPromoteCase(n)) != SIDE.NONE) {
 				status = Operation.PROMOTE;
-				Operation rotateCase = checkRotationCase(n);
+				Operation rotateCase = checkRotationCase(n,side);
 				if (rotateCase !=Operation.NONE) {
 					status = rotateCase;
 				}
-			}	
+			}
+			else {
+				status = Operation.FINISH;
+			}
 
 			switch (status) {
 			case PROMOTE:
-				// rimon worte promote(node.parent) is seems before that parent = node.parent
-				promote(n);
+				n.parent.rank++;
 				++rebalancing;
 				break;
 			case ROTATION:
@@ -164,16 +166,19 @@ public class WAVLTree {
 				break;
 			}
 			n = n.parent;
-
 		}
-		updateSubTreeSizeAndRankFromNodeToRoot(newNode.parent);
+		updateSubTreeSizeFromNodeToRoot(newNode.parent);
 		return rebalancing;
 	}
 
-	private void updateSubTreeSizeAndRankFromNodeToRoot(WAVLNode node) {
+	/**
+	 * O(log n)
+	 * @param node
+	 */
+	private void updateSubTreeSizeFromNodeToRoot(WAVLNode node) {
 		while (node != null) {
 			node.subTreeSize = node.right.subTreeSize + node.left.subTreeSize + 1;
-			node.rank = Math.max(node.left.rank, node.right.rank) + 1;
+			node = node.parent;
 		}
 	}
 
@@ -183,21 +188,27 @@ public class WAVLTree {
 	 * //check if its rotate/double rotate (difference 0,2)
 	 * 
 	 * @param node
+	 * @param side  of node x to his parent z
 	 * @return
 	 */
-	private Operation checkRotationCase(WAVLNode node) {
+	private Operation checkRotationCase(WAVLNode node, SIDE side) {
 		Operation s = Operation.NONE;
 		if (side == SIDE.LEFT) {
-			if (getRankDiffBySide(node, true) == 2) {
-				status = Operation.ROTATION;
-			} else {
-				status = Operation.DOUBLE_ROTATION;
+			if (getRankDiffBySide(node.parent,true) == 2) {
+				if (getRankDiffBySide(node, true) == 2) {
+					status = Operation.ROTATION;
+				} else {
+					status = Operation.DOUBLE_ROTATION;
+				}
 			}
+		
 		} else {
-			if (getRankDiffBySide(node, false) == 2) {
-				status = Operation.ROTATION;
-			} else {
-				status = Operation.DOUBLE_ROTATION;
+			if(getRankDiffBySide(node.parent,false) == 2) {
+				if (getRankDiffBySide(node, false) == 2) {
+					status = Operation.ROTATION;
+				} else {
+					status = Operation.DOUBLE_ROTATION;
+				}
 			}
 		}
 		return s;
@@ -226,6 +237,10 @@ public class WAVLTree {
 		// }
 		// }
 
+		if (node.parent==null) {
+			return SIDE.NONE;
+		}
+		
 		if (getRankDiffBySide(node.parent, false) == 0 )
 			s = SIDE.LEFT;
 		else if (getRankDiffBySide(node.parent, true) == 0)
