@@ -153,7 +153,7 @@ public class WAVLTree {
 				// singleRotation(newNode,b,side);
 				singleRotation(n,side);
 				status = Operation.FINISH;
-				rebalancing+=2;
+				rebalancing += 2;
 			case DOUBLE_ROTATION:
 				// this is node x from the lecture
 				// rimon please fix it to return the node to update the tree subTree and rank
@@ -203,6 +203,7 @@ public class WAVLTree {
 			}
 		
 		} else {
+			//false==left
 			if(getRankDiffBySide(node.parent,false) == 2) {
 				if (getRankDiffBySide(node, false) == 2) {
 					status = Operation.ROTATION;
@@ -244,7 +245,7 @@ public class WAVLTree {
 		if (getRankDiffBySide(node.parent, false) == 0 )
 			s = SIDE.LEFT;
 		else if (getRankDiffBySide(node.parent, true) == 0)
-			s= SIDE.RIGHT;
+			s = SIDE.RIGHT;
 		return s;
 	}
 
@@ -292,18 +293,20 @@ public class WAVLTree {
 	 * @return
 	 */
 	private void singleRotation(WAVLNode node, SIDE side) {
+		WAVLNode z  = null;
+		WAVLNode b = null;
 		if (side == SIDE.LEFT) {
 			z = node.parent;
 			z.parent = node;
 			node.right = z;
-			side.parent = z;
-			z.left = side;
+			b.parent = z;
+			z.left = b;
 		} else {
 			z = node.parent;
 			z.parent = node;
 			node.left = z;
-			side.parent = z;
-			z.right = side;
+			b.parent = z;
+			z.right = b;
 		}
 		--z.rank;
 	}
