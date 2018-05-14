@@ -16,13 +16,13 @@ public class WAVLTreePrinter {
         return String.join(System.lineSeparator(), representation(tree.getRoot(), byKey));
     }
 
-    private static List<String> representation( WAVLNode node, boolean byKey) {
+    private static List<String> representation( WAVLTree.WAVLNode node, boolean byKey) {
         if (!node.isInnerNode()) {
             return Collections.singletonList("#");
         }
 
         String thisString = byKey ? String.valueOf(node.getKey()) : node.getValue();
-
+        thisString+= "("+node.getRank()+")"+"s("+node.getSubtreeSize()+")";
         return concatenation(representation(node.getLeft(), byKey), thisString, representation(node.getRight(), byKey));
     }
 

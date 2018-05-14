@@ -1,7 +1,4 @@
-import java.util.ArrayList;
 import java.util.function.BiConsumer;
-
-import com.sun.istack.internal.NotNull;
 
 /**
  * 
@@ -73,7 +70,7 @@ public class WAVLTree {
 			if (k == node.getKey())
 				break;
 			else if (node.getKey() == WAVLNode.EXTERNAL_NODE_RANK)
-				return null;
+				return node;
 			else if (k < node.getKey())
 				node = node.getLeft();
 			else
@@ -154,11 +151,12 @@ public class WAVLTree {
 				singleRotation(n,side);
 				status = Operation.FINISH;
 				rebalancing += 2;
+				break;
 			case DOUBLE_ROTATION:
 				// this is node x from the lecture
 				// rimon please fix it to return the node to update the tree subTree and rank
 				// until the root
-				doubleRotation(n);
+				doubleRotation(n,side);
 				rebalancing +=4;
 				status = Operation.FINISH;
 				break;
@@ -177,7 +175,16 @@ public class WAVLTree {
 	 */
 	private void updateSubTreeSizeFromNodeToRoot(WAVLNode node) {
 		while (node != null) {
-			node.subTreeSize = node.right.subTreeSize + node.left.subTreeSize + 1;
+			if (node.key==WAVLNode.EXTERNAL_NODE_RANK) {
+				node = node.parent;
+				continue;
+			}
+			else {
+				if (node.right.key!=-1)
+					node.subTreeSize = node.right.subTreeSize+1;
+				if (node.left.key!=-1)
+					node.subTreeSize = node.left.subTreeSize+1;
+			}
 			node = node.parent;
 		}
 	}
@@ -255,13 +262,19 @@ public class WAVLTree {
 	 * @param node
 	 * @return
 	 */
-	private void doubleRotation(WAVLNode node, WAVLNode b, SIDE side) {
+	private void doubleRotation(WAVLNode node, SIDE side) {
+		WAVLNode z = node.parent;
+		SIDE zSide = this.SideToParent(z.parent, z);
+		WAVLNode b,c,d = null;
 		if (side == SIDE.LEFT) {
+			b= node.right;
 			c = b.left;
 			d = b.right;
-			z = node.parent;
 			node.right = c;
 			c.parent = node;
+			b.parent = z.parent;
+			if (zSide==SIDE.LEFT) z.parent.left = b;
+			else if (zSide==SIDE.RIGHT) z.parent.right= b;
 			node.parent = b;
 			b.left = node;
 			z.parent = b;
@@ -269,11 +282,14 @@ public class WAVLTree {
 			d.parent = z;
 			z.left = d;
 		} else {
+			b= node.left;
 			c = b.right;
 			d = b.left;
-			z = node.parent;
 			node.left = c;
 			c.parent = node;
+			b.parent = z.parent;
+			if (zSide==SIDE.LEFT) z.parent.left = b;
+			else if (zSide==SIDE.RIGHT) z.parent.right= b;
 			node.parent = b;
 			b.right = node;
 			z.parent = b;
@@ -284,6 +300,7 @@ public class WAVLTree {
 		--node.rank;
 		--z.rank;
 		++b.rank;
+
 	}
 
 	/**
@@ -296,30 +313,39 @@ public class WAVLTree {
 		WAVLNode z  = node.parent;
 		WAVLNode b = null;
 		SIDE zSide = this.SideToParent(z.parent, z);
+
 		if (side == SIDE.LEFT) {
 			b = node.right;
 			node.parent = z.parent;
+			if (zSide==SIDE.LEFT) z.parent.left = node;
+			else if (zSide==SIDE.RIGHT) z.parent.right= node;
+			else //zSide is null
+				root = node;
+			z.parent= node;
+			node.right= z;
+			z.left= b;
+			b.parent= z;
 			
 			
 		} else {
 			b = node.left;
 			node.parent = z.parent;
+			if (zSide==SIDE.LEFT) z.parent.left = node;
+			else if (zSide==SIDE.RIGHT) z.parent.right= node;
+			else //zSide is null
+				root = node;
+			z.parent= node;
+			node.left= z;
+			z.right= b;
+			b.parent= z;
 		}
 		--z.rank;
 	}
 
-	/**
-	 * rimon getting node x, need to promote and update next @Operation status by
-	 * the different cases You write the cases with new function
-	 * 
-	 * @param parent
-	 * @return
-	 */
-	private void promote(WAVLNode node) {
-		node.rank++;
-	}
 
 	public SIDE SideToParent(WAVLNode parent, WAVLNode chiled) {
+		if(parent==null)
+			return SIDE.NONE;
 		if (parent.getLeft() == chiled) {
 			return SIDE.LEFT;
 		} else {
@@ -472,7 +498,6 @@ public class WAVLTree {
 	 * if the tree is empty. O(n)
 	 */
 	public int[] keysToArray() {
-		int i = 0;
 		final int[] arr = new int[size()];
 		BiConsumer<WAVLNode, Integer> biConsumer = (node, index) -> arr[index] = node.getKey();
 		InOrderTree(root, 0, biConsumer);
@@ -486,7 +511,6 @@ public class WAVLTree {
 	 * respective keys, or an empty array if the tree is empty. O(n)
 	 */
 	public String[] infoToArray() {
-		int i = 0;
 		final String[] arr = new String[size()];
 		BiConsumer<WAVLNode, Integer> biConsumer = (node, index) -> arr[index] = node.getValue();
 		InOrderTree(root, 0, biConsumer);
@@ -614,7 +638,7 @@ public class WAVLTree {
 			this.key = key;
 			this.value = value;
 			rank = 0;
-			subTreeSize = 1;
+			subTreeSize = 0;
 			this.left = WAVLNode.createExternalNode(this);
 			this.right = WAVLNode.createExternalNode(this);
 		}
@@ -628,7 +652,7 @@ public class WAVLTree {
 			return SIDE.NONE;
 		}
 
-		public WAVLNode(int key, String value, @NotNull WAVLNode left, @NotNull WAVLNode right) {
+		public WAVLNode(int key, String value,  WAVLNode left,  WAVLNode right) {
 			this.key = key;
 			this.value = value;
 			this.left = left;
@@ -729,7 +753,7 @@ public class WAVLTree {
 		 * @return true if the node is internal , otherwise false O(1)
 		 */
 		public boolean isInnerNode() {
-			return (key == EXTERNAL_NODE_RANK ? true : false);
+			return (key != EXTERNAL_NODE_RANK ? true : false);
 		}
 
 		/**

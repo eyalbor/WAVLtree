@@ -172,7 +172,7 @@ public class WAVLTester {
  
             //if (t == OperType.Delete)
             //{
-            //WAVLNode deleteMe = _tree.findbyKey(key, _tree.getRoot());
+            //WAVLTree.WAVLNode deleteMe = _tree.findbyKey(key, _tree.getRoot());
             //if (!deleteMe.getLeft().isInnerNode() || !deleteMe.getRight().isInnerNode())
             //{
             //CreateOperation(operIndex);
@@ -263,7 +263,7 @@ public class WAVLTester {
             return checkBST_rec(_tree.getRoot(), Integer.MIN_VALUE, Integer.MAX_VALUE);
         }
  
-        private boolean checkBST_rec(WAVLNode node, int min, int max) {
+        private boolean checkBST_rec(WAVLTree.WAVLNode node, int min, int max) {
             if (node == null || !node.isInnerNode())
                 return true;
             return node.getKey() >= min && node.getKey() <= max &&
@@ -275,12 +275,12 @@ public class WAVLTester {
             return checkSubSizes_Rec(_tree.getRoot());
         }
  
-        private boolean checkSubSizes_Rec(WAVLNode node) {
+        private boolean checkSubSizes_Rec(WAVLTree.WAVLNode node) {
             if (node == null || !node.isInnerNode())
                 return true;
  
-            WAVLNode left = node.getLeft();
-            WAVLNode right = node.getRight();
+            WAVLTree.WAVLNode left = node.getLeft();
+            WAVLTree.WAVLNode right = node.getRight();
  
             int leftCount = (left != null && left.isInnerNode()) ? left.getSubtreeSize() : 0;
             int rightCount = (right != null && right.isInnerNode()) ? right.getSubtreeSize() : 0;
@@ -298,7 +298,7 @@ public class WAVLTester {
             if (_tree.empty())
                 return true;
  
-            int k_rankOfRoot = ((WAVLNode) _tree.getRoot()).getRank();
+            int k_rankOfRoot = ((WAVLTree.WAVLNode) _tree.getRoot()).getRank();
             int n_nodeCount = _tree.size();
             int h_height = height(_tree.getRoot());
  
@@ -307,7 +307,7 @@ public class WAVLTester {
         }
  
         //boolean badHeightDiff = false;
-        private int height(WAVLNode n) {
+        private int height(WAVLTree.WAVLNode n) {
             if (n == null || !n.isInnerNode())
                 return -1;
  
@@ -322,16 +322,16 @@ public class WAVLTester {
             if (_tree.empty())
                 return true;
  
-            boolean res = checkRank_rec((WAVLNode) _tree.getRoot());
+            boolean res = checkRank_rec((WAVLTree.WAVLNode) _tree.getRoot());
             return res;
         }
  
-        private boolean checkRank_rec(WAVLNode node) {
+        private boolean checkRank_rec(WAVLTree.WAVLNode node) {
             if (node == null || (!node.isInnerNode() && node.getRank() == -1))
                 return true;
  
-            int leftRank = node.getLeft() != null ? ((WAVLNode) node.getLeft()).getRank() : -1;
-            int rightRank = node.getRight() != null ? ((WAVLNode) node.getRight()).getRank() : -1;
+            int leftRank = node.getLeft() != null ? ((WAVLTree.WAVLNode) node.getLeft()).getRank() : -1;
+            int rightRank = node.getRight() != null ? ((WAVLTree.WAVLNode) node.getRight()).getRank() : -1;
  
             boolean isType1_1 = (node.getRank() - leftRank) == 1 && (node.getRank() - rightRank) == 1;
             boolean isType1_2 = (node.getRank() - leftRank) == 1 && (node.getRank() - rightRank) == 2;
@@ -340,7 +340,7 @@ public class WAVLTester {
             if (!isType1_1 && !isType1_2 && !isType2_1 && !isType2_2)
                 return false;
  
-            return checkRank_rec((WAVLNode) node.getLeft()) && checkRank_rec((WAVLNode) node.getRight());
+            return checkRank_rec((WAVLTree.WAVLNode) node.getLeft()) && checkRank_rec((WAVLTree.WAVLNode) node.getRight());
         }
  
         private int checkNodes() {
@@ -354,7 +354,7 @@ public class WAVLTester {
             return 1;
         }
  
-        private boolean containsNodes_rec(WAVLNode node, ArrayList<Integer> shouldExistsKeys) {
+        private boolean containsNodes_rec(WAVLTree.WAVLNode node, ArrayList<Integer> shouldExistsKeys) {
             if (node == null || !node.isInnerNode())
                 return true;
  
@@ -372,7 +372,7 @@ public class WAVLTester {
             return checkExtNodes_rec(_tree.getRoot());
         }
  
-        private boolean checkExtNodes_rec(WAVLNode node) {
+        private boolean checkExtNodes_rec(WAVLTree.WAVLNode node) {
             if (node == null)
                 return false;
  
