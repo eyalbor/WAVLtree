@@ -28,10 +28,6 @@ public class WAVLTree {
 
 	private WAVLNode root;
 	private static Operation status;
-	// rimon you dont understand it, double rotation , single rotaion = 1, promote
-	// =1
-	// and dont put it as a field
-	// private static int rebalancing;
 
 	/**
 	 * CTOR
@@ -130,11 +126,13 @@ public class WAVLTree {
 
 		// start passing on the tree from the node until the tree is valid
 		WAVLNode n = newNode.parent;
+		SIDE side = SIDE.NONE;
 		while (status != Operation.FINISH) {
-			if (checkPromoteCase(newNode) == Operation.PROMOTE) {
+			if ((side = checkPromoteCase(n)) != SIDE.NONE) {
 				status = Operation.PROMOTE;
 			}
-			Operation rotateCase = checkRotationCase(newNode);
+			
+			Operation rotateCase = checkRotationCase(n);
 			if (rotateCase == Operation.DOUBLE_ROTATION) {
 				status = Operation.DOUBLE_ROTATION;
 			} else if (rotateCase == Operation.ROTATION) {
@@ -145,6 +143,7 @@ public class WAVLTree {
 			case PROMOTE:
 				// rimon worte promote(node.parent) is seems before that parent = node.parent
 				promote(n);
+				++rebalancing;
 				break;
 			case ROTATION:
 				// this is node x from the lecture
@@ -152,20 +151,22 @@ public class WAVLTree {
 				// until the root
 				// dont put side as field to class the same about b
 				// singleRotation(newNode,b,side);
-				singleRotation(n);
+				singleRotation(n,side);
 				status = Operation.FINISH;
+				rebalancing+=2;
 			case DOUBLE_ROTATION:
 				// this is node x from the lecture
 				// rimon please fix it to return the node to update the tree subTree and rank
 				// until the root
 				doubleRotation(n);
+				rebalancing +=4;
 				status = Operation.FINISH;
 				break;
 			default:
 				break;
 			}
 			n = n.parent;
-			++rebalancing;
+
 		}
 		updateSubTreeSizeAndRankFromNodeToRoot(newNode.parent);
 		return rebalancing;
@@ -204,8 +205,8 @@ public class WAVLTree {
 		return s;
 	}
 
-	private Operation checkPromoteCase(WAVLNode node) {
-		Operation s = Operation.NONE;
+	private SIDE checkPromoteCase(WAVLNode node) {
+		SIDE s = SIDE.NONE;
 		// if (SideToParent(node.parent,node) == SIDE.LEFT) {
 		// side = SIDE.LEFT;
 		// b = node.right;
@@ -222,8 +223,10 @@ public class WAVLTree {
 		// }
 		// }
 
-		if (getRankDiffBySide(node.parent, false) == 0 || getRankDiffBySide(node.parent, true) == 0)
-			s = Operation.PROMOTE;
+		if (getRankDiffBySide(node.parent, false) == 0 )
+			s = SIDE.LEFT;
+		else if (getRankDiffBySide(node.parent, true) == 0)
+			s= SIDE.RIGHT;
 		return s;
 	}
 
@@ -270,19 +273,19 @@ public class WAVLTree {
 	 * @param node
 	 * @return
 	 */
-	private void singleRotation(WAVLNode node, WAVLNode b, SIDE side) {
+	private void singleRotation(WAVLNode node, SIDE side) {
 		if (side == SIDE.LEFT) {
 			z = node.parent;
 			z.parent = node;
 			node.right = z;
-			b.parent = z;
-			z.left = b;
+			side.parent = z;
+			z.left = side;
 		} else {
 			z = node.parent;
 			z.parent = node;
 			node.left = z;
-			b.parent = z;
-			z.right = b;
+			side.parent = z;
+			z.right = side;
 		}
 		--z.rank;
 	}
@@ -564,11 +567,11 @@ public class WAVLTree {
 	}
 
 	/**
-	 * @return The rank diff between the parent and the child on it's side. if side
+	 * @return The rank difference between the parent and the child on it's side. if side
 	 *         is true rightRankDiff else leftRankDiff
 	 */
-	private int getRankDiffBySide(WAVLNode parent, boolean side) {
-		return side ? parent.rightRankDiff() : parent.leftRankDiff();
+	private static int getRankDiffBySide(WAVLNode parent, boolean side) {
+		return side ? WAVLNode.getRankDiff(parent, parent.right): WAVLNode.getRankDiff(parent, parent.left);
 	}
 
 	/**
@@ -725,24 +728,12 @@ public class WAVLTree {
 		}
 
 		/**
-		 * @return The rank diff between the node and its left child
+		 * @return The rank diff between the node and its child
 		 */
-		public int leftRankDiff() {
-			WAVLNode left = getLeft();
-			if (left == null)
+		public static int getRankDiff(WAVLNode parent, WAVLNode child) {
+			if (parent == null || child == null)
 				throw new IllegalStateException("Left node cannot be null");
-			return getRank() - left.getRank();
-		}
-
-		/**
-		 * @return The rank diff between the node and its right child. Could not be
-		 *         called on virtual node.
-		 */
-		public int rightRankDiff() {
-			WAVLNode right = getRight();
-			if (right == null)
-				throw new IllegalStateException("Right node cannot be null");
-			return getRank() - right.getRank();
+			return parent.getRank() - child.getRank();
 		}
 	}
 }
