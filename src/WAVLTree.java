@@ -107,7 +107,7 @@ public class WAVLTree {
 
 		// connectNodeToParent
 		/****
-		 * rimon - you already check it in the code eyal - where????????
+		 * rimon - you already check it in the code, eyal - where????????
 		 ***/
 		if (!parent.isLeaf()) {
 			// insert to unary node
@@ -125,19 +125,17 @@ public class WAVLTree {
 		newNode.parent = parent;
 
 		// start passing on the tree from the node until the tree is valid
-		WAVLNode n = newNode.parent;
+		WAVLNode n = newNode;
 		SIDE side = SIDE.NONE;
 		while (status != Operation.FINISH) {
+			// between n to n.parent
 			if ((side = checkPromoteCase(n)) != SIDE.NONE) {
 				status = Operation.PROMOTE;
-			}
-			
-			Operation rotateCase = checkRotationCase(n);
-			if (rotateCase == Operation.DOUBLE_ROTATION) {
-				status = Operation.DOUBLE_ROTATION;
-			} else if (rotateCase == Operation.ROTATION) {
-				status = Operation.ROTATION;
-			}
+				Operation rotateCase = checkRotationCase(n);
+				if (rotateCase !=Operation.NONE) {
+					status = rotateCase;
+				}
+			}	
 
 			switch (status) {
 			case PROMOTE:
@@ -205,6 +203,11 @@ public class WAVLTree {
 		return s;
 	}
 
+	/**
+	 * between current node to the parent
+	 * @param node
+	 * @return
+	 */
 	private SIDE checkPromoteCase(WAVLNode node) {
 		SIDE s = SIDE.NONE;
 		// if (SideToParent(node.parent,node) == SIDE.LEFT) {
