@@ -293,20 +293,17 @@ public class WAVLTree {
 	 * @return
 	 */
 	private void singleRotation(WAVLNode node, SIDE side) {
-		WAVLNode z  = null;
+		WAVLNode z  = node.parent;
 		WAVLNode b = null;
+		SIDE zSide = this.SideToParent(z.parent, z);
 		if (side == SIDE.LEFT) {
-			z = node.parent;
-			z.parent = node;
-			node.right = z;
-			b.parent = z;
-			z.left = b;
+			b = node.right;
+			node.parent = z.parent;
+			
+			
 		} else {
-			z = node.parent;
-			z.parent = node;
-			node.left = z;
-			b.parent = z;
-			z.right = b;
+			b = node.left;
+			node.parent = z.parent;
 		}
 		--z.rank;
 	}
