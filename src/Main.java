@@ -14,7 +14,7 @@ public class Main {
 		tree.insert(15, "value15");
 		tree.insert(15, "value15");
 		tree.insert(16, "value16");
-		tree.delete(16);
+//		tree.delete(16);
 		//tree.delete(20);
 		//not working - maybe double rotaion
 		tree.insert(17, "value17");
@@ -24,7 +24,7 @@ public class Main {
 		for (int i = 0; i < 3; i++) {
 			tree2.insert(i, "");
 		}
-		System.out.println(tree2.toString());
+		System.out.println(tree.toString());
 	}
 
 }
