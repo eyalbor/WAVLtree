@@ -18,8 +18,13 @@ public class Main {
 		//tree.delete(20);
 		//not working - maybe double rotaion
 		tree.insert(17, "value17");
-		//tree.insert(18, "value18");
-		System.out.println(tree.toString());
+		tree.insert(18, "value18");
+		
+		WAVLTree tree2 = new WAVLTree();
+		for (int i = 0; i < 3; i++) {
+			tree2.insert(i, "");
+		}
+		System.out.println(tree2.toString());
 	}
 
 }

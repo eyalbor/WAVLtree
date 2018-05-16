@@ -2,7 +2,7 @@ import java.util.function.BiConsumer;
 
 /**
  * 
- * @author eyal borovsky(300075728)_rimon
+ * @author eyal borovsky(300075728)_rimon shy (302989215)
  * @version 1.0.0
  */
 
@@ -120,6 +120,7 @@ public class WAVLTree {
 		}
 		// connect to parent
 		newNode.parent = parent;
+		updateSubTreeSizeFromNodeToRoot(newNode.parent);
 
 		// start passing on the tree from the node until the tree is valid
 		WAVLNode n = newNode;
@@ -143,11 +144,6 @@ public class WAVLTree {
 				++rebalancing;
 				break;
 			case ROTATION:
-				// this is node x from the lecture
-				// rimon please fix it to return the node to update the tree subTree and rank
-				// until the root
-				// dont put side as field to class the same about b
-				// singleRotation(newNode,b,side);
 				singleRotation(n,side);
 				status = Operation.FINISH;
 				rebalancing += 2;
@@ -157,7 +153,7 @@ public class WAVLTree {
 				// rimon please fix it to return the node to update the tree subTree and rank
 				// until the root
 				doubleRotation(n,side);
-				rebalancing +=4;
+				rebalancing +=5;
 				status = Operation.FINISH;
 				break;
 			default:
@@ -165,10 +161,23 @@ public class WAVLTree {
 			}
 			n = n.parent;
 		}
-		updateSubTreeSizeFromNodeToRoot(newNode.parent);
+		//updateSubTreeSizeFromNodeToRoot(newNode.parent);
 		return rebalancing;
 	}
-
+private void updateSubTreeSizeRotation(WAVLNode node, WAVLNode z, WAVLNode b) {
+		int subTreeNode= node.getSubtreeSize();
+		int subTreeZ= z.getSubTreeSize();
+		node.subTreeSize= subTreeNode-b.getSubtreeSize()+subTreeZ;
+		z.subTreeSize= subTreeZ-subTreeNode+b.getSubTreeSize();
+	}
+	private void updateSubTreeSizeDoubleRotation(WAVLNode node, WAVLNode z, WAVLNode d,WAVLNode c, WAVLNode b) {
+		int subTreeNode= node.getSubtreeSize();
+		int subTreeZ= z.getSubTreeSize();
+		int subTreeB= b.getSubtreeSize();
+		b.subTreeSize= subTreeZ;
+		z.subTreeSize= subTreeZ-subTreeNode +d.getSubtreeSize();
+		node.subTreeSize= subTreeNode- subTreeB + c.getSubtreeSize();
+	}
 	/**
 	 * O(log n)
 	 * @param node
@@ -229,21 +238,7 @@ public class WAVLTree {
 	 */
 	private SIDE checkPromoteCase(WAVLNode node) {
 		SIDE s = SIDE.NONE;
-		// if (SideToParent(node.parent,node) == SIDE.LEFT) {
-		// side = SIDE.LEFT;
-		// b = node.right;
-		// if (getRankDiffBySide(node.parent,false)==0 &
-		// getRankDiffBySide(node.parent,true)<2) {
-		// s = Operation.PROMOTE;
-		// }
-		// }
-		// else {
-		// b= node.left;
-		// if (getRankDiffBySide(node.parent,true)==0 &
-		// getRankDiffBySide(node.parent,false)<2) {
-		// s = Operation.PROMOTE;
-		// }
-		// }
+
 
 		if (node.parent==null) {
 			return SIDE.NONE;
@@ -275,6 +270,7 @@ public class WAVLTree {
 			b.parent = z.parent;
 			if (zSide==SIDE.LEFT) z.parent.left = b;
 			else if (zSide==SIDE.RIGHT) z.parent.right= b;
+			else root= b;	
 			node.parent = b;
 			b.left = node;
 			z.parent = b;
@@ -290,6 +286,7 @@ public class WAVLTree {
 			b.parent = z.parent;
 			if (zSide==SIDE.LEFT) z.parent.left = b;
 			else if (zSide==SIDE.RIGHT) z.parent.right= b;
+			else root=b;
 			node.parent = b;
 			b.right = node;
 			z.parent = b;
@@ -300,7 +297,7 @@ public class WAVLTree {
 		--node.rank;
 		--z.rank;
 		++b.rank;
-
+updateSubTreeSizeDoubleRotation(node, z, d, c,b);
 	}
 
 	/**
@@ -340,7 +337,7 @@ public class WAVLTree {
 			b.parent= z;
 		}
 		--z.rank;
-	}
+updateSubTreeSizeRotation(node, z, b);	}
 
 
 	public SIDE SideToParent(WAVLNode parent, WAVLNode chiled) {
