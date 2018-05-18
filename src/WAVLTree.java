@@ -184,11 +184,10 @@ public class WAVLTree {
 		node.subTreeSize = 0;
 		if (!node.isLeaf())
 			if (node.right.isInnerNode())
-				node.subTreeSize += node.right.subTreeSize  + 1;
-			if(node.left.isInnerNode())
-				node.subTreeSize +=  node.left.subTreeSize + 1;
+				node.subTreeSize += node.right.subTreeSize + 1;
+		if (node.left.isInnerNode())
+			node.subTreeSize += node.left.subTreeSize + 1;
 	}
-
 
 	/**
 	 * rimon all this function is not right, what is side here
@@ -370,17 +369,15 @@ public class WAVLTree {
 		SIDE sideOfChild;
 		SIDE sideToParent;
 
+		// if the node not exist return -1
 		WAVLNode searchNode = searchForNode(k);
 		if (searchNode == null) {
 			return -1;
 		}
 
+		// get parent side
 		parent = searchNode.parent;
-		if (parent.getLeft() == searchNode) {
-			sideToParent = SIDE.LEFT;
-		} else {
-			sideToParent = SIDE.RIGHT;
-		}
+		sideToParent = SideToParent(parent, searchNode);
 
 		// if is leaf
 		if (searchNode.isLeaf()) {
@@ -392,6 +389,10 @@ public class WAVLTree {
 			case RIGHT:
 				parent.right = externalNode;
 				break;
+			case NONE:
+				// rimon all the tree delete???
+				root = null;
+				return rebalancing;
 			default:
 				break;
 			}
@@ -404,23 +405,28 @@ public class WAVLTree {
 		}
 		// unary Node
 		else if ((sideOfChild = searchNode.isUnary()) != SIDE.NONE) {
-			parent.subTreeSize--;
 			if (sideOfChild == SIDE.LEFT) {
 				if (sideToParent == SIDE.LEFT) {
 					parent.left = searchNode.left;
+				} else if (sideToParent == SIDE.NONE) {
+					root = searchNode.left;
 				} else {
 					parent.right = searchNode.left;
 				}
 				searchNode.left.parent = parent;
 			} else {
-				if (sideToParent == SIDE.LEFT) {
-					parent.left = searchNode.right;
-				} else {
-					parent.right = searchNode.right;
+				if (sideToParent == SIDE.RIGHT) {
+					if (sideToParent == SIDE.LEFT) {
+						parent.left = searchNode.right;
+					} else if (sideToParent == SIDE.NONE) {
+						root = searchNode.right;
+					} else {
+						parent.right = searchNode.right;
+					}
+					searchNode.right.parent = parent;
 				}
-				searchNode.right.parent = parent;
+				rebalanceNode = parent;
 			}
-			rebalanceNode = parent;
 		}
 		// 2 children
 		else {
@@ -431,13 +437,15 @@ public class WAVLTree {
 				successor.parent.right = WAVLNode.createExternalNode(successor.parent);
 			}
 			rebalanceNode = successor.parent;
-			rebalanceNode.subTreeSize--;
 			if (rebalanceNode.isLeaf()) {
 				rebalanceNode.rank = 0;
 			}
 			// TODO what if tree size is 1 or 0
 			if (sideToParent == SIDE.LEFT) {
 				parent.left = successor;
+			}
+			if (sideToParent == SIDE.NONE) {
+				root = successor;
 			} else {
 				parent.right = successor;
 			}
@@ -449,17 +457,97 @@ public class WAVLTree {
 				successor.parent = parent;
 			}
 		}
-		parent.subTreeSize -= 1;
+		if (parent != null)
+			parent.subTreeSize -= 1;
 
 		searchNode = null;
 		// TODO delete before the subtreesize and rank --
-		rebalance(rebalanceNode);
+		rebalancing += rebalance(rebalanceNode);
 		return rebalancing;
 	}
 
-	private void rebalance(WAVLNode parent) {
-		// TODO Auto-generated method stub
+	private int rebalance(WAVLNode rebalanceNode) {
+		int rebalancing = 0;
+		SIDE side = SIDE.NONE;
+		while (status != Operation.FINISH) {
+			if ((side = checkDemoteCase(rebalanceNode)) != SIDE.NONE) {
+				status = Operation.DEMOTE;
+				Operation rotateCase = checkRotationCaseDeleate(rebalanceNode, side);
+				if (rotateCase != Operation.NONE) {
+					status = rotateCase;
+				}
+			} else {
+				status = Operation.FINISH;
+			}
 
+			switch (status) {
+			case DEMOTE:
+				rebalanceNode.rank--;
+				++rebalancing;
+				break;
+			case ROTATION:
+				if (side == SIDE.LEFT)
+					singleRotation(rebalanceNode.right, SIDE.RIGHT);
+				else if (side == SIDE.RIGHT)
+					singleRotation(rebalanceNode.left, SIDE.LEFT);
+				status = Operation.FINISH;
+				rebalancing += 2;
+				break;
+			case DOUBLE_ROTATION:
+				if (side == SIDE.LEFT)
+					doubleRotation(rebalanceNode.right, SIDE.RIGHT);
+				else if (side == SIDE.RIGHT)
+					doubleRotation(rebalanceNode.left, SIDE.LEFT);
+				rebalancing += 5;
+				status = Operation.FINISH;
+				break;
+			default:
+				break;
+			}
+			rebalanceNode = rebalanceNode.parent;
+		}
+		updateSubTreeSizeFromNodeToRoot(rebalanceNode.parent);
+		return rebalancing;
+
+	}
+
+	// node is Z in presentation
+	private SIDE checkDemoteCase(WAVLNode node) {
+		SIDE s = SIDE.NONE;
+
+		if (node.parent == null) {
+			return SIDE.NONE;
+		}
+
+		if (getRankDiffBySide(node, false) == 3)
+			s = SIDE.LEFT;
+		else if (getRankDiffBySide(node, true) == 3)
+			s = SIDE.RIGHT;
+		return s;
+	}
+
+	private Operation checkRotationCaseDeleate(WAVLNode node, SIDE side) {
+		Operation status = Operation.NONE;
+		if (side == SIDE.LEFT) {
+			if (getRankDiffBySide(node.parent, true) == 1) {
+				if (getRankDiffBySide(node.parent.right, true) == 1) {
+					status = Operation.ROTATION;
+				} else if (getRankDiffBySide(node.parent.right, true) == 2) {
+					status = Operation.DOUBLE_ROTATION;
+				}
+			}
+
+		} else {
+			// false==left
+			if (getRankDiffBySide(node.parent, false) == 1) {
+				if (getRankDiffBySide(node.parent.left, false) == 1) {
+					status = Operation.ROTATION;
+				} else if (getRankDiffBySide(node.parent.left, false) == 2) {
+					status = Operation.DOUBLE_ROTATION;
+				}
+			}
+		}
+		return status;
 	}
 
 	/**
