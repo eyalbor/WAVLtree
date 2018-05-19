@@ -10,7 +10,7 @@ import java.util.function.BiConsumer;
  *
  * WAVLTree
  *
- * An implementation of a WAVL Tree. (Haupler, Sen & Tarajan ‘15)
+ * An implementation of a WAVL Tree. (Haupler, Sen and Tarajan ‘15)
  *
  */
 public class WAVLTree {
@@ -18,11 +18,9 @@ public class WAVLTree {
 	private enum Operation {
 		FINISH, PROMOTE, ROTATION, DOUBLE_ROTATION, DEMOTE, NONE
 	}
-
 	private enum SIDE {
 		LEFT, RIGHT, NONE
 	}
-
 	private WAVLNode root;
 	private static Operation status;
 
@@ -36,7 +34,8 @@ public class WAVLTree {
 	/**
 	 * public boolean empty()
 	 *
-	 * @returns true if and only if the tree is empty O(1)
+	 * @returns @true if and only if the tree is empty
+	 *  O(1)
 	 */
 	public boolean empty() {
 		return size() == 0 ? true : false;
@@ -45,8 +44,8 @@ public class WAVLTree {
 	/**
 	 * public String search(int k)
 	 *
-	 * @returns the info of an item with key k if it exists in the tree otherwise
-	 *          null O(log n)
+	 * @returns @String The info of an item with key k if it exists in the tree otherwise return null
+	 *  O(log n)
 	 */
 	public String search(int key) {
 		WAVLNode node = searchForNode(key);
@@ -58,9 +57,8 @@ public class WAVLTree {
 	}
 
 	/**
-	 *
-	 * @param k
-	 *            is the key
+	 * Search For Node by key
+	 * @param k - is the key
 	 * @return @WAVLNODE the node of the key, if the tree is not empty and if the
 	 *         key isn't found return external node
 	 */
@@ -85,6 +83,10 @@ public class WAVLTree {
 	 * valid (keep its invariants). returns the number of rebalancing operations, or
 	 * 0 if no rebalancing operations were necessary. returns -1 if an item with key
 	 * k already exists in the tree.
+	 * @param k
+	 * @param value
+	 * @return rebalnce
+	 * O (log n )
 	 */
 	public int insert(int k, String value) {
 		int rebalancing = 0;
@@ -164,6 +166,7 @@ public class WAVLTree {
 	}
 
 	/**
+	 * update Sub Tree Size From Node To Root
 	 * O(log n)
 	 * 
 	 * @param node
@@ -180,6 +183,11 @@ public class WAVLTree {
 		}
 	}
 
+	/**
+	 * calculate Sub Tree Pair Node
+	 * @param node
+	 * O(1)
+	 */
 	private void calculateSubTreePairNode(WAVLNode node) {
 		node.subTreeSize = 0;
 		if (!node.isLeaf())
@@ -187,19 +195,15 @@ public class WAVLTree {
 				node.subTreeSize += node.right.subTreeSize + 1;
 		if (node.left.isInnerNode())
 			node.subTreeSize += node.left.subTreeSize + 1;
-
-		// node.subTreeSize +=1;
 	}
 
 	/**
-	 * rimon all this function is not right, what is side here
-	 * 
-	 * //check if its rotate/double rotate (difference 0,2)
+	 *  * checks if after insertion the balancing case is rotation, double rotation or none(only promote)
 	 * 
 	 * @param node
-	 * @param side
-	 *            of node x to his parent z
-	 * @return
+	 * @param side - of node x to his parent z
+	 * @return side  - the operation status
+	 * O (1)
 	 */
 	private Operation checkRotationCase(WAVLNode node, SIDE side) {
 		Operation s = Operation.NONE;
@@ -211,7 +215,6 @@ public class WAVLTree {
 					status = Operation.DOUBLE_ROTATION;
 				}
 			}
-
 		} else {
 			// false==left
 			if (getRankDiffBySide(node.parent, false) == 2) {
@@ -229,7 +232,8 @@ public class WAVLTree {
 	 * between current node to the parent
 	 * 
 	 * @param node
-	 * @return
+	 * @return side of node x to his parent z
+	 * O (1)
 	 */
 	private SIDE checkPromoteCase(WAVLNode node) {
 		SIDE s = SIDE.NONE;
@@ -246,10 +250,12 @@ public class WAVLTree {
 	}
 
 	/**
-	 * Eyal
+	 * performs the double rotation
 	 * 
 	 * @param node
+	 * @param side
 	 * @return
+	 * O(1)
 	 */
 	private void doubleRotation(WAVLNode node, SIDE side) {
 		WAVLNode z = node.parent;
@@ -304,10 +310,12 @@ public class WAVLTree {
 	}
 
 	/**
-	 * eyal
+	 * performs the rotation.
 	 * 
 	 * @param node
+	 * @param side - of node x to his parent z
 	 * @return
+	 * O(1)
 	 */
 	private void singleRotation(WAVLNode node, SIDE side) {
 		WAVLNode z = node.parent;
@@ -346,7 +354,15 @@ public class WAVLTree {
 		calculateSubTreePairNode(z);
 	}
 
-	public SIDE SideToParent(WAVLNode parent, WAVLNode chiled) {
+	/**
+	 * checks the side of node x to his parent z.
+	 * 
+	 * @param parent
+	 * @param chiled
+	 * @return side of child
+	 * O(1)
+	 */
+	private SIDE SideToParent(WAVLNode parent, WAVLNode chiled) {
 		if (parent == null)
 			return SIDE.NONE;
 		if (parent.getLeft() == chiled) {
@@ -363,6 +379,12 @@ public class WAVLTree {
 	 * must remain valid (keep its invariants). returns the number of rebalancing
 	 * operations, or 0 if no rebalancing operations were needed. returns -1 if an
 	 * item with key k was not found in the tree.
+	 * O(log n)
+	 * 
+	 * @param k - key
+	 *  
+	 * @return rebalncing
+	 * 
 	 */
 	public int delete(int k) {
 		int rebalancing = 0;
@@ -375,6 +397,12 @@ public class WAVLTree {
 		return rebalancing;
 	}
 
+	/**
+	 * Delete node from tree of exists
+	 * 
+	 * @param searchNode
+	 * @return rebalance count
+	 */
 	private int delete(WAVLNode searchNode) {
 		int rebalancing = 0;
 		WAVLNode rebalanceNode = null;
@@ -452,7 +480,7 @@ public class WAVLTree {
 				if (sideToParent == SIDE.LEFT) {
 					parent.left = successor;
 				}
-				if (sideToParent == SIDE.NONE) {
+				else if (sideToParent == SIDE.NONE) {
 					root = successor;
 				} else {
 					parent.right = successor;
@@ -471,9 +499,20 @@ public class WAVLTree {
 		return rebalancing;
 	}
 
+	/**
+	 *
+	 * rebalance the tree after the deletion of the node. 
+	 * 
+	 * @param rebalanceNode
+	 *  
+	 * @return number of rebalacing
+	 * 
+	 * O(log n)
+	 */
 	private int rebalance(WAVLNode rebalanceNode) {
 		int rebalancing = 0;
 		SIDE side = SIDE.NONE;
+		//checks which case of rebalancing is this
 		while (status != Operation.FINISH) {
 			if ((side = checkDemoteCase(rebalanceNode)) != SIDE.NONE) {
 				status = Operation.DEMOTE;
@@ -519,6 +558,13 @@ public class WAVLTree {
 	}
 
 	// node is Z in presentation
+	/**
+	 *
+	 * checks if it's demote case, and if so, if it's the right or the left son
+	 *  @param @WAVLNode node
+	 *  
+	 * @return side
+	 */
 	private SIDE checkDemoteCase(WAVLNode node) {
 		SIDE s = SIDE.NONE;
 
@@ -533,6 +579,15 @@ public class WAVLTree {
 		return s;
 	}
 
+	/**
+	 * private Operation checkRotationCaseDeleate(WAVLNode node, SIDE side) {
+	 *
+	 * checks if after deletion the balancing case is rotation, double rotation or none(only demote)
+	 *  @param node
+	 *  @param  side
+	 *  
+	 * @return next @operation to do
+	 */
 	private Operation checkRotationCaseDeleate(WAVLNode node, SIDE side) {
 		Operation status = Operation.NONE;
 		if (side == SIDE.LEFT) {
@@ -561,8 +616,11 @@ public class WAVLTree {
 	 * public String min()
 	 *
 	 * Returns the info of the item with the smallest key in the tree, or null if
-	 * the tree is empty O(log n)
+	 * the tree is empty
+	 *  O(log n)
+	 * @return
 	 */
+	
 	public String min() {
 		WAVLNode node = getMinNode(root);
 		if (node == null) {
@@ -570,12 +628,26 @@ public class WAVLTree {
 		}
 		return node.getValue();
 	}
+	
+	/**
+	 * @return min key
+	 * O (log n)
+	 */
+	public int minKey() {
+		WAVLNode node = getMinNode(root);
+		if (node == null) {
+			return -1;
+		}
+		return node.key;
+	}
 
 	/**
 	 * public String max()
 	 *
 	 * Returns the info of the item with the largest key in the tree, or null if the
-	 * tree is empty O(log n)
+	 * tree is empty
+	 *  O(log n)
+	 *  @return
 	 */
 	public String max() {
 		WAVLNode node = root;
@@ -589,13 +661,14 @@ public class WAVLTree {
 	}
 
 	/**
-	 * public int[] keysToArray()
 	 *
 	 * Returns a sorted array which contains all keys in the tree, or an empty array
-	 * if the tree is empty. O(n)
+	 * if the tree is empty.
+	 *  O(n)
+	 *  @return array contain the keys
 	 */
 	public int[] keysToArray() {
-		final int[] arr = new int[size()];
+		final int[] arr = new int[size()+1];
 		BiConsumer<WAVLNode, Integer> biConsumer = (node, index) -> arr[index] = node.getKey();
 		InOrderTree(root, 0, biConsumer);
 		return arr;
@@ -605,22 +678,32 @@ public class WAVLTree {
 	 * public String[] infoToArray()
 	 *
 	 * Returns an array which contains all info in the tree, sorted by their
-	 * respective keys, or an empty array if the tree is empty. O(n)
+	 * respective keys, or an empty array if the tree is empty. 
+	 * O(n)
+	 * @return array contain the values
 	 */
 	public String[] infoToArray() {
-		final String[] arr = new String[size()];
+		final String[] arr = new String[size()+1];
 		BiConsumer<WAVLNode, Integer> biConsumer = (node, index) -> arr[index] = node.getValue();
 		InOrderTree(root, 0, biConsumer);
 		return arr;
 	}
 
+	/**
+	 * Arrange the tree in order to collection
+	 * 
+	 * @param node
+	 * @param i
+	 * @param biConsume
+	 * O (n)
+	 */
 	private void InOrderTree(WAVLNode node, int i, BiConsumer<WAVLNode, Integer> biConsumer) {
 		if (node == null) {
 			return;
 		}
 		WAVLNode n = getMinNode(root);
 		while (n != null) {
-			biConsumer.accept(node, i);
+			biConsumer.accept(n, i);
 			++i;
 			n = getSuccessor(n);
 		}
@@ -629,7 +712,9 @@ public class WAVLTree {
 	/**
 	 * public int size()
 	 *
-	 * Returns the number of nodes in the tree. O(1)
+	 * Returns the number of nodes in the tree. 
+	 * O(1)
+	 * @return size
 	 */
 	public int size() {
 		if (root != null) {
@@ -641,7 +726,9 @@ public class WAVLTree {
 	/**
 	 * public WAVLNode getRoot()
 	 *
-	 * Returns the root WAVL node, or null if the tree is empty O(1)
+	 * Returns the root WAVL node, or null if the tree is empty
+	 *  O(1)
+	 *  @return root
 	 */
 	public WAVLNode getRoot() {
 		return root;
@@ -655,8 +742,9 @@ public class WAVLTree {
 	 * 2: select(size()) returns the value of the node with maximal key Example 3:
 	 * select(2) returns the value 2nd smallest minimal node, i.e the value of the
 	 * node minimal node's successor
-	 *
+	 * @param i
 	 * O(n) - we can do it better by const
+	 * @return value
 	 */
 	public String select(int i) {
 		WAVLNode node = getMinNode(root);
@@ -673,6 +761,7 @@ public class WAVLTree {
 	 * 
 	 * @param node
 	 * @return The successor to the given node, or null if it has no successor.
+	 * O (log n)
 	 */
 	private WAVLNode getSuccessor(WAVLNode node) {
 		if (node != null) {
@@ -689,6 +778,11 @@ public class WAVLTree {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param rootNode
+	 * @return the min node
+	 */
 	private WAVLNode getMinNode(WAVLNode rootNode) {
 		WAVLNode node = rootNode;
 		while (node != null) {
@@ -728,9 +822,11 @@ public class WAVLTree {
 		private int subTreeSize;
 
 		/**
-		 * public class WAVLNode, create leaf
+		 *  create leaf
+		 *  
+		 * @param key
+		 * @param value
 		 */
-
 		public WAVLNode(int key, String value) {
 			this.key = key;
 			this.value = value;
@@ -740,6 +836,10 @@ public class WAVLTree {
 			this.right = WAVLNode.createExternalNode(this);
 		}
 
+		/**
+		 * 
+		 * @return is unary node
+		 */
 		public SIDE isUnary() {
 			if (this.left.key != -1 && this.right.key == -1) {
 				return SIDE.LEFT;
@@ -749,25 +849,19 @@ public class WAVLTree {
 			return SIDE.NONE;
 		}
 
-		public WAVLNode(int key, String value, WAVLNode left, WAVLNode right) {
-			this.key = key;
-			this.value = value;
-			this.left = left;
-			this.right = right;
-			this.parent = null;
-			this.rank = Math.max(left.getRank(), right.getRank()) + 1;
-			this.subTreeSize = left.getSubtreeSize() + right.getSubtreeSize() + 1;
-			this.left.setParent(this);
-			this.right.setParent(this);
-		}
-
-		// external node
+		/**
+		 * private CTOR
+		 */
 		private WAVLNode() {
 			key = -1;
 			rank = EXTERNAL_NODE_RANK;
 			subTreeSize = 0;
 		}
 
+		/**
+		 * 
+		 * @return if node is leaf
+		 */
 		public boolean isLeaf() {
 			if (this.left.key == -1 && this.right.key == -1)
 				return true;
@@ -775,7 +869,11 @@ public class WAVLTree {
 		}
 
 		/**
+
 		 * create external node with key = -1
+		 * 
+		 * @param parent
+		 * @return the node
 		 */
 		private static WAVLNode createExternalNode(WAVLNode parent) {
 			WAVLNode node = new WAVLNode();
@@ -801,46 +899,90 @@ public class WAVLTree {
 			return value;
 		}
 
+		/**
+		 * 
+		 * @return child left
+		 */
 		public WAVLNode getLeft() {
 			return left;
 		}
 
+		/**
+		 * 
+		 * @return child right
+		 */
 		public WAVLNode getRight() {
 			return right;
 		}
 
+		/**
+		 * 
+		 * @return rank
+		 */
 		public int getRank() {
 			return rank;
 		}
 
+		/**
+		 * 
+		 * @param rank
+		 */
 		public void setRank(int rank) {
 			this.rank = rank;
 		}
 
+		/**
+		 * 
+		 * @return  parent
+		 */
 		public WAVLNode getParent() {
 			return parent;
 		}
 
+		/**
+		 * 
+		 * @param parent
+		 */
 		public void setParent(WAVLNode parent) {
 			this.parent = parent;
 		}
 
+		/**
+		 * 
+		 * @return Sub Tree Size
+		 */
 		public int getSubTreeSize() {
 			return subTreeSize;
 		}
 
+		/**
+		 * 
+		 * @param subTreeSize
+		 */
 		public void setSubTreeSize(int subTreeSize) {
 			this.subTreeSize = subTreeSize;
 		}
 
+		/**
+		 * 
+		 * @param value
+		 */
 		public void setValue(String value) {
 			this.value = value;
 		}
 
+		/**
+		 * 
+		 * @param left
+		 */
 		public void setLeft(WAVLNode left) {
 			this.left = left;
 		}
 
+		/**
+		 * 
+		 * @param right
+		 */
 		public void setRight(WAVLNode right) {
 			this.right = right;
 		}
@@ -866,7 +1008,10 @@ public class WAVLTree {
 			return "Node(" + value + ", rank=" + rank + ")";
 		}
 
+
 		/**
+		 * @param parent
+		 * @param child
 		 * @return The rank diff between the node and its child
 		 */
 		public static int getRankDiff(WAVLNode parent, WAVLNode child) {

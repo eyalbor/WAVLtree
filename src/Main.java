@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 
 public class Main {
 
@@ -16,11 +17,24 @@ public class Main {
 		tree3.insert(15, "value15");
 		tree3.insert(16, "value16");
 		tree3.delete(16);
-		tree3.delete(20);
+		System.out.println(tree3.toString());
+		tree3.delete(2);
 		//not working - maybe double rotaion
 		//tree3.insert(17, "value17");
 		//tree3.insert(18, "value18");
 		System.out.println(tree3.toString());
+
+//		System.out.println(tree3.select(6));
+//		System.out.println(tree3.empty());
+		int[] ar = tree3.keysToArray();
+		for (int i = 0; i < ar.length; i++) {
+			System.out.println(ar[i]);
+		}
+		
+		String[] arr = tree3.infoToArray();
+		for (int i = 0; i < ar.length; i++) {
+			System.out.println(arr[i]);
+		}
 		
 //		WAVLTree tree = new WAVLTree();
 //		tree.insert(10, "value10");
