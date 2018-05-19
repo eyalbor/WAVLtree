@@ -187,6 +187,8 @@ public class WAVLTree {
 				node.subTreeSize += node.right.subTreeSize + 1;
 		if (node.left.isInnerNode())
 			node.subTreeSize += node.left.subTreeSize + 1;
+
+		// node.subTreeSize +=1;
 	}
 
 	/**
@@ -364,16 +366,21 @@ public class WAVLTree {
 	 */
 	public int delete(int k) {
 		int rebalancing = 0;
-		WAVLNode rebalanceNode = null;
-		WAVLNode parent = null;
-		SIDE sideOfChild;
-		SIDE sideToParent;
-
 		// if the node not exist return -1
 		WAVLNode searchNode = searchForNode(k);
 		if (searchNode == null) {
 			return -1;
 		}
+		rebalancing = this.delete(searchNode);
+		return rebalancing;
+	}
+
+	private int delete(WAVLNode searchNode) {
+		int rebalancing = 0;
+		WAVLNode rebalanceNode = null;
+		WAVLNode parent = null;
+		SIDE sideOfChild;
+		SIDE sideToParent;
 
 		// get parent side
 		parent = searchNode.parent;
@@ -390,12 +397,13 @@ public class WAVLTree {
 				parent.right = externalNode;
 				break;
 			case NONE:
-				// rimon all the tree delete???
+				// rimon, all the tree delete???
 				root = null;
 				return rebalancing;
 			default:
 				break;
 			}
+			externalNode.parent = parent;
 			parent.subTreeSize--;
 			if (parent.isLeaf()) {
 				parent.rank = 0;
@@ -415,53 +423,50 @@ public class WAVLTree {
 				}
 				searchNode.left.parent = parent;
 			} else {
-				if (sideToParent == SIDE.RIGHT) {
-					if (sideToParent == SIDE.LEFT) {
-						parent.left = searchNode.right;
-					} else if (sideToParent == SIDE.NONE) {
-						root = searchNode.right;
-					} else {
-						parent.right = searchNode.right;
-					}
-					searchNode.right.parent = parent;
+				if (sideToParent == SIDE.LEFT) {
+					parent.left = searchNode.right;
+				} else if (sideToParent == SIDE.NONE) {
+					root = searchNode.right;
+					root.rank = 0;
+					root.subTreeSize = 0;
+				} else {
+					parent.right = searchNode.right;
 				}
-				rebalanceNode = parent;
+				searchNode.right.parent = parent;
 			}
+			if(parent!=null) {
+				parent.subTreeSize--;
+			}
+			rebalanceNode = parent;
 		}
 		// 2 children
 		else {
 			WAVLNode successor = getSuccessor(searchNode);
-			if (successor.parent.left == successor) {
-				successor.parent.left = WAVLNode.createExternalNode(successor.parent);
-			} else {
-				successor.parent.right = WAVLNode.createExternalNode(successor.parent);
+			if (successor == null) {
+				root = null;
+				return 0;
 			}
-			rebalanceNode = successor.parent;
-			if (rebalanceNode.isLeaf()) {
-				rebalanceNode.rank = 0;
-			}
-			// TODO what if tree size is 1 or 0
-			if (sideToParent == SIDE.LEFT) {
-				parent.left = successor;
-			}
-			if (sideToParent == SIDE.NONE) {
-				root = successor;
-			} else {
-				parent.right = successor;
-			}
-			if (successor != null) {
+			else 
+			{	
+				rebalancing+=this.delete(successor);
+				if (sideToParent == SIDE.LEFT) {
+					parent.left = successor;
+				}
+				if (sideToParent == SIDE.NONE) {
+					root = successor;
+				} else {
+					parent.right = successor;
+				}
 				successor.left = searchNode.left;
 				successor.right = searchNode.right;
-				successor.subTreeSize = searchNode.subTreeSize - 1;
+				successor.subTreeSize = searchNode.subTreeSize;
 				successor.rank = searchNode.rank;
 				successor.parent = parent;
+				successor.left.parent = successor;
+				successor.right.parent = successor;
+				rebalanceNode = successor;
 			}
 		}
-		if (parent != null)
-			parent.subTreeSize -= 1;
-
-		searchNode = null;
-		// TODO delete before the subtreesize and rank --
 		rebalancing += rebalance(rebalanceNode);
 		return rebalancing;
 	}
@@ -506,7 +511,9 @@ public class WAVLTree {
 			}
 			rebalanceNode = rebalanceNode.parent;
 		}
-		updateSubTreeSizeFromNodeToRoot(rebalanceNode.parent);
+		if (rebalanceNode!=null) {
+			updateSubTreeSizeFromNodeToRoot(rebalanceNode.parent);
+		}
 		return rebalancing;
 
 	}
