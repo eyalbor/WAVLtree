@@ -28,13 +28,14 @@ public class TableTest {
 			double avg = countInsert/(10000 * i);
 			System.out.println("avg number of balancing actions after " + 10000 * i + " insertion:" + Double.toString(avg));
 			System.out.println("max = " + Collections.max(rebalnce));
-//			for (int l = 1; l <= 10000 * i; l++) {
-//				counDelete += tree.delete(l);
-//			}
-//			System.out.println("Total number of balancing actions after " + 10000 * i + " deletion:" + counDelete);
-//			double avgD = counDelete/(10000 * i);
-//			System.out.println("avg number of balancing actions after " + 10000 * i + " deletion:" +  Double.toString(avgD));
-//			System.out.println(tree.empty());
+			for (int l = 1; l <= 10000 * i; l++) {
+				System.out.println(l);
+				counDelete += tree.delete(l);
+			}
+			System.out.println("Total number of balancing actions after " + 10000 * i + " deletion:" + counDelete);
+			double avgD = counDelete/(10000 * i);
+			System.out.println("avg number of balancing actions after " + 10000 * i + " deletion:" +  Double.toString(avgD));
+			System.out.println(tree.empty());
 		}
 
 	}

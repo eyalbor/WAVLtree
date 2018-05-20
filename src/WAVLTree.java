@@ -393,7 +393,9 @@ public class WAVLTree {
 		if (searchNode == null) {
 			return -1;
 		}
-		rebalancing = this.delete(searchNode);
+		if (searchNode.isInnerNode()) {
+			rebalancing = this.delete(searchNode);
+		}
 		return rebalancing;
 	}
 
@@ -415,6 +417,7 @@ public class WAVLTree {
 		sideToParent = SideToParent(parent, searchNode);
 
 		// if is leaf
+		System.out.println("searchNode = " + searchNode);
 		if (searchNode.isLeaf()) {
 			WAVLNode externalNode = WAVLNode.createExternalNode(parent);
 			switch (sideToParent) {
@@ -457,6 +460,7 @@ public class WAVLTree {
 					root = searchNode.right;
 					root.rank = 0;
 					root.subTreeSize = 0;
+					root.parent = null;
 				} else {
 					parent.right = searchNode.right;
 				}
@@ -513,6 +517,10 @@ public class WAVLTree {
 	 * O(log n)
 	 */
 	private int rebalance(WAVLNode rebalanceNode) {
+		if(rebalanceNode==null) {
+			return 0;
+		}
+		System.out.println("rebalanceNode = " + rebalanceNode);
 		int rebalancing = 0;
 		SIDE side = SIDE.NONE;
 		status = Operation.NONE;
@@ -1009,7 +1017,7 @@ public class WAVLTree {
 
 		@Override
 		public String toString() {
-			return "Node(" + value + ", rank=" + rank + ")";
+			return "Node("+ key + ", rank=" + rank + ")";
 		}
 
 
