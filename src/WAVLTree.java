@@ -438,9 +438,11 @@ public class WAVLTree {
 			parent.subTreeSize--;
 			if (parent.isLeaf()) {
 				parent.rank = 0;
+				rebalanceNode = parent.parent;
 				rebalancing++;
 			}
-			rebalanceNode = parent;
+			else
+				rebalanceNode = parent;
 		}
 		// unary Node
 		else if ((sideOfChild = searchNode.isUnary()) != SIDE.NONE) {
@@ -583,7 +585,8 @@ public class WAVLTree {
 	 */
 	private SIDE checkDemoteCase(WAVLNode node) {
 		SIDE s = SIDE.NONE;
-
+		System.out.println("*********************************************************");
+		System.out.println(this);
 		if (getRankDiffBySide(node, false) == 3)
 			s = SIDE.LEFT;
 		else if (getRankDiffBySide(node, true) == 3)

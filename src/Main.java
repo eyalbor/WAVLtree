@@ -6,11 +6,12 @@ public class Main {
 		
 		WAVLTree tree = new WAVLTree();
 		tree.insert(1, "value10");
-		tree.insert(2, "value10");
+		tree.insert(22, "value10");
 		tree.insert(3, "value10");
-		tree.insert(4, "value10");
+		tree.insert(67, "value10");
 		tree.insert(5, "value10");
 		tree.insert(6, "value10");
+		tree.insert(9, "value10");
 		//tree.insert(11, "value10");
 		System.out.println(tree.toString());
 		System.out.println("*******************************");
@@ -22,10 +23,6 @@ public class Main {
 		
 		System.out.println("*******************************");
 		System.out.println("delete = " + tree.delete(3));
-		System.out.println(tree.toString());
-
-		System.out.println("*******************************");
-		System.out.println("delete = " + tree.delete(4));
 		System.out.println(tree.toString());
 		
 		System.out.println("*******************************");
