@@ -477,6 +477,9 @@ public class WAVLTree {
 			else 
 			{	
 				rebalancing+=this.delete(successor);
+				//System.out.println(this.toString());
+				parent = searchNode.parent;
+				sideToParent = SideToParent(parent, searchNode);
 				if (sideToParent == SIDE.LEFT) {
 					parent.left = successor;
 				}
@@ -512,11 +515,16 @@ public class WAVLTree {
 	private int rebalance(WAVLNode rebalanceNode) {
 		int rebalancing = 0;
 		SIDE side = SIDE.NONE;
+		status = Operation.NONE;
+		Operation rotateCase= Operation.NONE;
 		//checks which case of rebalancing is this
 		while (status != Operation.FINISH) {
 			if ((side = checkDemoteCase(rebalanceNode)) != SIDE.NONE) {
-				status = Operation.DEMOTE;
-				Operation rotateCase = checkRotationCaseDeleate(rebalanceNode, side);
+				status = Operation.DEMOTE;		
+				if (side==SIDE.RIGHT)
+					rotateCase = checkRotationCaseDeleate(rebalanceNode.left, side);
+				else if (side==SIDE.LEFT)
+					rotateCase = checkRotationCaseDeleate(rebalanceNode.right, side);				
 				if (rotateCase != Operation.NONE) {
 					status = rotateCase;
 				}
@@ -567,10 +575,6 @@ public class WAVLTree {
 	 */
 	private SIDE checkDemoteCase(WAVLNode node) {
 		SIDE s = SIDE.NONE;
-
-		if (node.parent == null) {
-			return SIDE.NONE;
-		}
 
 		if (getRankDiffBySide(node, false) == 3)
 			s = SIDE.LEFT;
