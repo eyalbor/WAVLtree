@@ -417,7 +417,6 @@ public class WAVLTree {
 		sideToParent = SideToParent(parent, searchNode);
 
 		// if is leaf
-		System.out.println("searchNode = " + searchNode);
 		if (searchNode.isLeaf()) {
 			WAVLNode externalNode = WAVLNode.createExternalNode(parent);
 			switch (sideToParent) {
