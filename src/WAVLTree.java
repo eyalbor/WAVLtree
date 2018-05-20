@@ -507,7 +507,11 @@ public class WAVLTree {
 				rebalanceNode = successor;
 			}
 		}
+		System.out.println("befire rebalnce:");
+		System.out.println(this);
+		System.out.println(rebalanceNode);
 		rebalancing += rebalance(rebalanceNode);
+		updateSubTreeSizeFromNodeToRoot(rebalanceNode);
 		return rebalancing;
 	}
 
@@ -532,6 +536,7 @@ public class WAVLTree {
 		Operation rotateCase= Operation.NONE;
 		//checks which case of rebalancing is this
 		while (status != Operation.FINISH) {
+			System.out.println(this);
 			if ((side = checkDemoteCase(rebalanceNode)) != SIDE.NONE) {
 				status = Operation.DEMOTE;		
 				if (side==SIDE.RIGHT)
@@ -569,7 +574,8 @@ public class WAVLTree {
 			default:
 				break;
 			}
-			rebalanceNode = rebalanceNode.parent;
+			if (rebalanceNode.parent==null)
+				status = Operation.FINISH;			rebalanceNode = rebalanceNode.parent;
 		}
 		if (rebalanceNode!=null) {
 			updateSubTreeSizeFromNodeToRoot(rebalanceNode.parent);
@@ -589,7 +595,7 @@ public class WAVLTree {
 	private SIDE checkDemoteCase(WAVLNode node) {
 		SIDE s = SIDE.NONE;
 		//System.out.println("*********************************************************");
-		//System.out.println(this);
+		//System.out.println(node);
 		if (getRankDiffBySide(node, false) == 3)
 			s = SIDE.LEFT;
 		else if (getRankDiffBySide(node, true) == 3)
@@ -822,7 +828,9 @@ public class WAVLTree {
 	 *         side is true rightRankDiff else leftRankDiff
 	 */
 	private static int getRankDiffBySide(WAVLNode parent, boolean side) {
-		return side ? WAVLNode.getRankDiff(parent, parent.right) : WAVLNode.getRankDiff(parent, parent.left);
+		//System.out.println("getRankDiffBySide :" + parent);
+		int r =  side ? WAVLNode.getRankDiff(parent, parent.right) : WAVLNode.getRankDiff(parent, parent.left);
+		return r;
 	}
 
 	/**

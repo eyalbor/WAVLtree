@@ -3,7 +3,7 @@ import java.util.Collections;
 
 public class TableTest {
 
-	public static final int NUMBER = 10;
+	public static final int NUMBER = 100;
 	
 	public static void main(String[] args) {
 		
