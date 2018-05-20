@@ -418,6 +418,7 @@ public class WAVLTree {
 
 		// if is leaf
 		if (searchNode.isLeaf()) {
+			System.out.println("searchNode is leaf - delete");
 			WAVLNode externalNode = WAVLNode.createExternalNode(parent);
 			switch (sideToParent) {
 			case LEFT:
@@ -445,6 +446,7 @@ public class WAVLTree {
 		}
 		// unary Node
 		else if ((sideOfChild = searchNode.isUnary()) != SIDE.NONE) {
+			System.out.println("search node is Unary");
 			if (sideOfChild == SIDE.LEFT) {
 				if (sideToParent == SIDE.LEFT) {
 					parent.left = searchNode.left;
@@ -474,6 +476,7 @@ public class WAVLTree {
 		}
 		// 2 children
 		else {
+			System.out.println("search node is 2 children");
 			WAVLNode successor = getSuccessor(searchNode);
 			if (successor == null) {
 				root = null;
@@ -481,6 +484,7 @@ public class WAVLTree {
 			}
 			else 
 			{	
+				System.out.println("the successor is : " +successor);
 				rebalancing+=this.delete(successor);
 				//System.out.println(this.toString());
 				parent = searchNode.parent;
@@ -521,7 +525,7 @@ public class WAVLTree {
 		if(rebalanceNode==null) {
 			return 0;
 		}
-		System.out.println("rebalanceNode = " + rebalanceNode);
+		System.out.println("check rebalanceNode = " + rebalanceNode);
 		int rebalancing = 0;
 		SIDE side = SIDE.NONE;
 		status = Operation.NONE;
@@ -584,8 +588,8 @@ public class WAVLTree {
 	 */
 	private SIDE checkDemoteCase(WAVLNode node) {
 		SIDE s = SIDE.NONE;
-		System.out.println("*********************************************************");
-		System.out.println(this);
+		//System.out.println("*********************************************************");
+		//System.out.println(this);
 		if (getRankDiffBySide(node, false) == 3)
 			s = SIDE.LEFT;
 		else if (getRankDiffBySide(node, true) == 3)

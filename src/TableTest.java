@@ -39,6 +39,7 @@ public class TableTest {
 			for (int l = 1; l <= NUMBER * i; l++) {
 				System.out.println("DELETE number :" + l);
 				counDelete += tree.delete(l);
+				System.out.println(tree);
 			}
 			
 			System.out.println("Total number of balancing actions after " + 10000 * i + " deletion:" + counDelete);
