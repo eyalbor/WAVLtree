@@ -3,7 +3,7 @@ import java.util.Collections;
 
 public class TableTest {
 
-	public static final int NUMBER = 100;
+	public static final int NUMBER = 20;
 	
 	public static void main(String[] args) {
 		
@@ -36,7 +36,7 @@ public class TableTest {
 			System.out.println("avg number of balancing actions after " + 10000 * i + " insertion:" + Double.toString(avg));
 			System.out.println("max = " + Collections.max(rebalnce));
 			
-			for (int l = 1; l <= NUMBER * i; l++) {
+			for (int l = 0; l <= NUMBER * i; l++) {
 				System.out.println("DELETE number :" + l);
 				counDelete += tree.delete(l);
 				System.out.println(tree);

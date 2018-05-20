@@ -5,14 +5,14 @@ public class Main {
 	public static void main(String[] args) {
 		
 		WAVLTree tree = new WAVLTree();
-		tree.insert(9, "value10");
-		tree.insert(0, "value10");
+		tree.insert(8, "value10");
 		tree.insert(10, "value10");
-		
+		tree.insert(7, "value10");
+		tree.insert(9, "value10");
 		System.out.println(tree.toString());
 		
 		System.out.println("*******************************");
-		System.out.println("delete = " + tree.delete(9));
+		System.out.println("delete = " + tree.delete(7));
 		System.out.println(tree.toString());
 		
 //		WAVLTree tree3 = new WAVLTree();
